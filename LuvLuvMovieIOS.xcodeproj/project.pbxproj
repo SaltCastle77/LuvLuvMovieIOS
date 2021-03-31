@@ -15,6 +15,7 @@
 		54FB865026134EB90001BF2D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 54FB864F26134EB90001BF2D /* Assets.xcassets */; };
 		54FB865326134EB90001BF2D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 54FB865126134EB90001BF2D /* LaunchScreen.storyboard */; };
 		54FB865C261368450001BF2D /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB865B261368450001BF2D /* ListViewController.swift */; };
+		54FB865F2613730B0001BF2D /* MovieVO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB865E2613730B0001BF2D /* MovieVO.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		54FB865226134EB90001BF2D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		54FB865426134EB90001BF2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		54FB865B261368450001BF2D /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
+		54FB865E2613730B0001BF2D /* MovieVO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieVO.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				54FB864726134EB80001BF2D /* ViewController.swift */,
 				54FB864926134EB80001BF2D /* Main.storyboard */,
 				54FB865B261368450001BF2D /* ListViewController.swift */,
+				54FB865E2613730B0001BF2D /* MovieVO.swift */,
 				54FB864F26134EB90001BF2D /* Assets.xcassets */,
 				54FB865126134EB90001BF2D /* LaunchScreen.storyboard */,
 				54FB865426134EB90001BF2D /* Info.plist */,
@@ -146,6 +149,7 @@
 				54FB864E26134EB80001BF2D /* LuvLuvMovieIOS.xcdatamodeld in Sources */,
 				54FB864826134EB80001BF2D /* ViewController.swift in Sources */,
 				54FB864426134EB80001BF2D /* AppDelegate.swift in Sources */,
+				54FB865F2613730B0001BF2D /* MovieVO.swift in Sources */,
 				54FB865C261368450001BF2D /* ListViewController.swift in Sources */,
 				54FB864626134EB80001BF2D /* SceneDelegate.swift in Sources */,
 			);
