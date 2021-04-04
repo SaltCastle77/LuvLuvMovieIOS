@@ -8,25 +8,68 @@
 import UIKit
 
 class ListViewController: UITableViewController{
-    // 튜플 아이템으로 구성된 데이터 세트
     
-    var dataset = [
-        ("다크 나이트", "영웅물에 철학에 음악까지 더해져 예술이 되다.", "2008-09-04", 8.95),
-        ("호우시절", "떄를 알고 내리는 좋은 비", "2009-10-08", 7.31),
-        ("말할 수 없는 비밀", "여기서 너 까지 다섯 걸음", "2014-05-07",9.19)
-    ]
+    override func viewDidLoad() {
+        self.callMovieAPI()
+    }
+    
+    var page = 1
+    
+    @IBAction func more(_ sender: Any) {
+        self.page += 1
+        // 영화 차트 API 호출
+        self.callMovieAPI()
+        // 데이터를 다시 읽어오도록 갱신해야한다.
+        self.tableView.reloadData()
+    }
+    
+    @IBOutlet var moreBtn: UIButton!
+    
+    func callMovieAPI() {
+        let url = "https://api.themoviedb.org/3/movie/popular?api_key=9c16b0e3f97fb175552f5d4ee8d06016&language=ko-KR&page=\(self.page)"
+        
+        let apiURL: URL! = URL(string: url)
+        
+        let apidata = try! Data(contentsOf: apiURL)
+        
+        let log = NSString(data:apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다."
+        
+        NSLog("\(log)")
+        
+        do {
+            let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
+            
+            let movie = apiDictionary["results"] as! NSArray
+            
+            let totalCount = apiDictionary["total_results"] as! Int
+            
+            // 전체리스트의 갯수가 API의 저체 갯수보다 많아지면 더보기 버튼을 숨기게 한다.
+            if (self.list.count >= totalCount) {
+                self.moreBtn.isHidden = true
+            }
+            
+            for row in movie {
+                // 순회 상수를 NSDictionary 타입으로 캐스팅
+                let r = row as! NSDictionary
+                
+                let mvo = MovieVO()
+                mvo.title = r["title"] as? String
+                mvo.description = r["overview"] as? String
+                mvo.thumbnail = r["poster_path"] as? String
+                mvo.detail = r["original_title"] as? String
+                mvo.rating = r["vote_average"] as? Double
+                mvo.opendate = r["release_date"] as? String
+                // 배열에 추가
+                self.list.append(mvo)
+            }
+            
+        } catch {
+            NSLog("Parse Error!!!")
+        }
+    }
     
     lazy var list: [MovieVO] = {
         var datalist = [MovieVO]()
-
-        for (title, desc, opendate, rating) in self.dataset {
-            let mvo = MovieVO()
-            mvo.title = title
-            mvo.description = desc
-            mvo.opendate = opendate
-            mvo.rating = rating
-            datalist.append(mvo)
-        }
         return datalist
     }()
     
@@ -36,14 +79,32 @@ class ListViewController: UITableViewController{
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { // 테이블 뷰 의 개별 행 내용을 담는 것
         let row = self.list[indexPath.row] // 행의 번호를 알고 싶을떄 list[indexPath.row]를 사용하면 알 수 있다.
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell")! // cell 객체를 생성,
-        cell.textLabel?.text = row.title // 만약 테이블 셀의 textLabel 속성에 값이 있으면 하위 속성인 .text에 row.title 값을 대입하고 , 없으면 아무것도 처리하지 않는다. 라는 의미 오류가 발생안해! 옵셔널 체인
-        cell.detailTextLabel?.text = row.description
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! MovieCell // cell 객체를 생성,
+        
+        // 썸네일 경로로 인자값으로 하는 URL 객체를 생성
+        let imageurl = "https://image.tmdb.org/t/p/w500/" + row.thumbnail!
+        let url: URL! = URL(string: imageurl)
+        // 이미지를 읽어와 Data 객체에 저장
+        let imageData = try! Data(contentsOf: url)
+        
+        cell.thumbnail.image = UIImage(data:imageData)
+        
+        cell.title?.text = row.title
+        
+        cell.desc?.text = row.description
+        
+        cell.opendate?.text = row.opendate
+        
+        cell.rating?.text = "\(row.rating!)"
+                
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { //테이블 셀을 클릭했을때 실행되는 함수
         NSLog("선택된 행은\(indexPath.row) 번째 행입니다.")
     }
+    
+    
+    
     
 }

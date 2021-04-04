@@ -104,8 +104,10 @@ var datalist = [MoiveVO]()
 
 > 생각할점 : 데이터 소스를 연동할떄 즉 뭘 보여줄껀데? 1) 몇개의 행으로 구성되나 2) 각 행의 내용은 어떻게 구성되나? 를 생각한다. 
 
+1) 프로토타입이 정해진 셀(CELL)
+
 ```swift
-   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { // 생성해야 할 행의 개수를 반환하는 메소드 상위 클래스인 UITableView에 지정되어있어 override해줘야한다.
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { // 생성해야 할 행의 개수를 반환하는 메소드 상위 클래스인 UITableView에 지정되어있어 override해줘야한다.
         return self.list.count // 생성되는 list갯수만큼 리턴 해줘야한다.
     }
     
@@ -113,6 +115,7 @@ var datalist = [MoiveVO]()
         let row = self.list[indexPath.row] // 행의 번호를 알고 싶을떄 list[indexPath.row]를 사용하면 알 수 있다.
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell")! // cell 객체를 생성,
         cell.textLabel?.text = row.title // 만약 테이블 셀의 textLabel 속성에 값이 있으면 하위 속성인 .text에 row.title 값을 대입하고 , 없으면 아무것도 처리하지 않는다. 라는 의미 오류가 발생안해! 옵셔널 체인
+        cell.detailTextLabel?.text = row.description
         return cell
     }
     
@@ -129,5 +132,145 @@ var datalist = [MoiveVO]()
 
 
 
+2) 프로토타입 커스텀 셀 하기
 
+- 라벨 오브젝트를 만들고 태그 번호를 붙인다. 화면에 구성되는 요소들을 일일이 연결하는 방법이있지만 많아지면 헷갈린다. 아울렛 변수를 이용해서 프로토타입 셀에 대한 커스텀 클래스를 구현해야한다. 일단 작성 후에는 관리가 용의하다는 장점이 있음.
+
+- ![image-20210401203930833](README.assets/image-20210401203930833.png)
+
+- ListViewController.swift
+
+```swift
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { // 테이블 뷰 의 개별 행 내용을 담는 것
+        let row = self.list[indexPath.row] // 행의 번호를 알고 싶을떄 list[indexPath.row]를 사용하면 알 수 있다.
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell")! // cell 객체를 생성,
+    
+        let title = cell.viewWithTag(101) as? UILabel
+        
+        let desc = cell.viewWithTag(102) as? UILabel
+        
+        let opendate = cell.viewWithTag(103) as? UILabel
+        
+        let rating = cell.viewWithTag(104) as? UILabel
+        
+        title?.text = row.title
+        desc?.text = row.description
+        opendate?.text = row.opendate
+        rating?.text = "\(row.rating!)"
+        
+        return cell
+    }
+```
+
+
+
+- **커스텀 클래스로 프로토타입 셀의 객체 제어하기**
+
+> 이방법이 더 좋다. 처음에 초기 설정을 해야하니까 번거롭지만 다양한 객체의 커스텀 클래스를 이해할 수 있다. 가장 좋은건 잘못된 태그값을 호출 하는 문제에서 자유로워 질 수 있다. 
+
+
+
+## 2일차
+
+### TMDB 데이터 연동
+
+> `viewDidLoad)()` 메소드 내부에서 REST 메소드를 호출해 줘야한다. 
+
+- GET 방식으로 REST 메소드를 호출하여 데이터를 읽어오는 방법은 다음과 같다. 
+
+```swift
+var list = Data(contentsOf: URL타입의 객체)
+```
+
+- 서버에 응답을 받지 못하는 경우도 있기 때문에 항상 옵셔널 타입값을 갖는다. 
+
+#### 1. https요청이 아닐경우
+
+> **http로 요청을 보낼 경우 info.plist 파일을 선택하고 [Open AS] -> [Source Code] 에 아래 코드를 붙여 넣는다.**
+
+```xml
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+```
+
+
+
+#### 2. JSON 객체를 파싱해서 NSDictionary 객체로 변환하기
+
+> 네트 워크를 통해 호출한 API 데이터는 apidata 상수에 저장되어 있고 이는 Data 타입이어서 바로 꺼내 쓰기가 어렵다. 테이블을 구성하려는 데이터로 사용하려면 NSDictionary 객체로 변환을 해야한다. 
+
+- 데이터 형식에 따라 `NSArray`, `NSDictionary`로 형태를 적절히 캐스팅해주면된다.
+
+- 먼저 JSON 객체를 파싱하려면 JSONSerializtion 객체의 jsonObject() 메소드를 사용하는게 좋다. JsonObject() 메소드는 do ~ try ~ catch()구문으로 감싸 오류가 바생하면 catch 블록으로 실행 흐름이 전달된다.
+
+```swift
+do {
+  let apiDictonary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
+} catch {
+  
+}
+```
+
+#### 3. 더보기 기능 구현
+
+> 아주 작은 데이터가 아닌이상 전체 데이터를 한꺼번에 주고 받으면안 된다. 한꺼번에 읽어오면 처리 속도가 늦어지는 성능상의 문제를 일으킬 수 가 있다. 
+
+- 추가한 데이터를 테이블 뷰가 읽어오도록 해야하는게 핵심 
+
+```swift
+  @IBAction func more(_ sender: Any) {
+        self.page += 1
+        // 영화 차트 API 호출
+        self.callMovieAPI()
+        // 데이터를 다시 읽어오도록 갱신해야한다.
+        self.tableView.reloadData()  
+    }
+```
+
+- callMovieAPI함수를 불러 올떄마다 list에 append 되기 떄문에 값이 계속 쌓이게 된다.
+
+#### 4. 리팩토링
+
+- 영화 차트 API를 호출하는 메소드를 만들어 중복 코드를 최소화했다.
+
+```swift
+ func callMovieAPI() {
+        let url = "https://api.themoviedb.org/3/movie/popular?api_key=9c16b0e3f97fb175552f5d4ee8d06016&language=ko-KR&page=\(self.page)"
+        
+        let apiURL: URL! = URL(string: url)
+        
+        let apidata = try! Data(contentsOf: apiURL)
+        
+        let log = NSString(data:apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다."
+        
+        NSLog("\(log)")
+        
+        do {
+            let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
+            
+            let movie = apiDictionary["results"] as! NSArray
+            
+            for row in movie {
+                // 순회 상수를 NSDictionary 타입으로 캐스팅
+                let r = row as! NSDictionary
+                
+                let mvo = MovieVO()
+                mvo.title = r["title"] as? String
+                mvo.description = r["overview"] as? String
+                mvo.thumbnail = r["poster_path"] as? String
+                mvo.detail = r["original_title"] as? String
+                mvo.rating = r["vote_average"] as? Double
+                mvo.opendate = r["release_date"] as? String
+                // 배열에 추가
+                self.list.append(mvo)
+            }
+            
+        } catch {
+            NSLog("Parse Error!!!")
+        }
+    }
+```
 
