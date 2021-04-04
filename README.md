@@ -1,8 +1,9 @@
 # LUVLUVMOVIE  IOS 개발버전
 
-> vue.js와 Django로 만들었던 LUVLUVMOVIE의 IOS앱버전
+> 참고문헌 : 꼼꼼한 재은씨의 Swift 기본편, 실전편
 
 ## 1일차
+
 ### 테이블 뷰를 이용한 데이터 목록 구현
 <details>
 <summary>자세히</summary>
@@ -22,8 +23,6 @@
 2) `ListCell`은 타입이 나눠져 있으며 프로토타입 셀 = `ListCell` 을 참조하기 위해서 식별 아이디를 부여하는게 좋다. 코드에서 프로토 타입 셀을 참조할 때 사용됨
 
 3) `TableView`의 데이터 소스는 정적방법과 계속 데이터가 바뀌는 동적 방법이 있는데 대부분 동적이다. 
-	</div>
-</details>
 
 
 #### 1. 데이터 모델링
@@ -33,23 +32,20 @@
   > 값이 없을 수 있으므로 옵셔널 변수로 저장한다.
 
 ```swift
-//
-//  MovieVO.swift
-//  LuvLuvMovieIOS
-//
-//  Created by 염성훈 on 2021/03/30.
-//
-
 import Foundation
+import UIKit
 
 class MovieVO {
     var thumbnail: String? //썸네일 이미지 주소
     var title : String? // 영화 제목
-    var description: String?
-    var detail : String?
-    var opendate : String?
-    var rating : Double?
+    var description: String? // 영화 정보
+    var detail : String? // 영화 상새설명
+    var opendate : String? // 영화 개봉일
+    var rating : Double? // 영화 평점
+    // 영화 썸네일 이미지를 담을 UIImage 객체를 추가한다.
+    var thumbnailImage: UIImage?
 }
+
 ```
 
 - ListViewcontrolller.swift
@@ -94,11 +90,19 @@ class ListViewController: UITableViewController{
 var datalist = [MoiveVO]()
 ```
 
-- lazy문법
+- lazy var문법
 
-1) lazy는 변수를 정의하면 참조되는 시점에 맞춰 초기화 되서 메모리 낭비를 줄이ㅣㄹ 수 잇다. 
+**1) lazy closure 라는 문법인데 초기화할때 주로 사용된다.** 지연저장 프로퍼티 코드 블럭이 정확히 해당 변수의 읽기 작업이 일어날떄만 실행되기 떄문이다.따라서 메모리 누수를 줄일 수 있다.
 
-2) lazy를 붙이지 않은 프로퍼티는 다른 프로퍼티를 참조 할 수 없기 때문에 꼭 써야한다. list 배열 변수를 초기화 하는데에는 dataset 프로퍼티가 필요하기 떄문
+2) 반드시 var와 사용되야하는데 기본적으로 lazy로 선언되는 변수는 초기에 값을 존재하지 않고 이후에 값이 생성되기 떄문에 let으로 선언될 수 없다.
+
+```swift
+lazy var list: [MovieVO] = { // list 변수가 불러질떄 생성된다.
+        var datalist = [MovieVO]()
+        return datalist //datalist가 클로저 문법으로쓰여서 이 값이 list에 담겨 list는 결국 datalist 타입과 같은 변수가 된다.
+    }()
+```
+
 
 
 
@@ -170,12 +174,14 @@ var datalist = [MoiveVO]()
 
 > 이방법이 더 좋다. 처음에 초기 설정을 해야하니까 번거롭지만 다양한 객체의 커스텀 클래스를 이해할 수 있다. 가장 좋은건 잘못된 태그값을 호출 하는 문제에서 자유로워 질 수 있다. 
 
-
-
+</div>
+</details>
 ## 2일차
 
 ### TMDB 데이터 연동
-
+<details>
+<summary>자세히</summary>
+	<div markdown="1">
 > `viewDidLoad)()` 메소드 내부에서 REST 메소드를 호출해 줘야한다. 
 
 - GET 방식으로 REST 메소드를 호출하여 데이터를 읽어오는 방법은 다음과 같다. 
@@ -212,7 +218,6 @@ var list = Data(contentsOf: URL타입의 객체)
 do {
   let apiDictonary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
 } catch {
-  
 }
 ```
 
@@ -275,8 +280,8 @@ do {
         }
     }
 ```
-
-
+</div>
+</details>
 
 ## 3일차 
 
@@ -299,7 +304,7 @@ do {
 
 
 
-##### 1)메모이제이션 활용
+##### 1) 메모이제이션 활용
 
 - `tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath` 의 이미지를 읽어오는 코드를 API 데이터를 읽어온 다음 이미지를 내려받아서 배열로 저장하고 미리내려 받은 이미지를 사용하면 속도가 빨라진다.
 - `viewDidLoad()` 에서 실행되는 CallMovieAPI() 메서드에서 미리 값을 받아와서 mvo.객체에 저장시켜놓고 이를 list에 추가시킨다. 그리고 우리는 불러서 쓰기만하면됨!
@@ -336,9 +341,33 @@ let thumb_img_url = tmdb_img_url + mvo.thumbnail!
 
   **2) `DispatchQueue.main.async()` 범용 비동기 함수 이용**
 
-- 
+- 섬네일 이미지를 처리하는 `getThumbnailImage` 메소드 정의 후 이 메소드 내부에서 메모이제이션 기법 적용.
 
+```swift
+  func getThumbnailImage(_ index: Int) -> UIImage {
+        let mvo = self.list[index]
+        // 여기서 메모이제이션: 저장된 이미지가 있으면 그걸 반환하고, 없을 경우 내려 받아 저장후 변환
+        
+        if let savedImage = mvo.thumbnailImage {
+            return savedImage
+        } else {
+            let thumb_img_url = tmdb_img_url + mvo.thumbnail!
+            let url: URL! = URL(string: thumb_img_url)
+            let imageData = try! Data(contentsOf: url)
+            mvo.thumbnailImage = UIImage(data:imageData) // UIImage를 mvo 객체제 우선 저장해야하한다.
+            return mvo.thumbnailImage! // 저장된 이미지를 반환한다.
+        }
+    }
+```
 
+- 비동기처리 : 이 함수는 비동기 방식으로 실행할 코드를 함수나 클로저 형식으로 입력 받음. **중요!: 클로저는 내부 함수에서 사용되는 외부 환경을 게속 유지해 주기 떄문에 cell 객체가 제거되지 않고 계속 살아있을수 있음.**
+  - 섬네일 이미질 가져오게 한다음, 섬네일 이미지를 가져오는 과정을 기다리지 않고 다음행으로 이동하여 셀을 반환하여 메소드를 종료시킨다.
+  - 바깥의 `tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)` 가 종료되도 내부 함수인 클로저는 영향을 받지 않는다.
 
-
+```swift
+ // 비동기 방식으로 섬네일 이미지를 읽어온다.
+        DispatchQueue.main.async(execute: {
+            cell.thumbnail.image = self.getThumbnailImage(indexPath.row)
+        })
+```
 

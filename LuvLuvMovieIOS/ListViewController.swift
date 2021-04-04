@@ -13,6 +13,11 @@ class ListViewController: UITableViewController{
         self.callMovieAPI()
     }
     
+    lazy var list: [MovieVO] = {
+        var datalist = [MovieVO]()
+        return datalist
+    }()
+    
     var page = 1
     
     let tmdb_img_url = "https://image.tmdb.org/t/p/w500"
@@ -51,7 +56,7 @@ class ListViewController: UITableViewController{
             }
             
             for row in movie {
-                // 순회 상수를 NSDictionary 타입으로 캐스팅
+                // 순회 상수를 NSDictionary 타입으로 캐스팅 이타입으로 캐스팅 해줘야 사용할 수 있음.
                 let r = row as! NSDictionary
                 
                 let mvo = MovieVO()
@@ -78,10 +83,20 @@ class ListViewController: UITableViewController{
         }
     }
     
-    lazy var list: [MovieVO] = {
-        var datalist = [MovieVO]()
-        return datalist
-    }()
+    func getThumbnailImage(_ index: Int) -> UIImage {
+        let mvo = self.list[index]
+        // 여기서 메모이제이션: 저장된 이미지가 있으면 그걸 반환하고, 없을 경우 내려 받아 저장후 변환
+        if let savedImage = mvo.thumbnailImage {
+            return savedImage
+        } else {
+            let thumb_img_url = tmdb_img_url + mvo.thumbnail!
+            let url: URL! = URL(string: thumb_img_url)
+            let imageData = try! Data(contentsOf: url)
+            mvo.thumbnailImage = UIImage(data:imageData) // UIImage를 mvo 객체제 우선 저장해야하한다.
+            
+            return mvo.thumbnailImage! // 저장된 이미지를 반환한다.
+        }
+    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { // 생성해야 할 행의 개수를 반환하는 메소드 상위 클래스인 UITableView에 지정되어있어 override해줘야한다.
         return self.list.count // 생성되는 list갯수만큼 리턴 해줘야한다.
@@ -89,9 +104,13 @@ class ListViewController: UITableViewController{
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { // 테이블 뷰 의 개별 행 내용을 담는 것
         let row = self.list[indexPath.row] // 행의 번호를 알고 싶을떄 list[indexPath.row]를 사용하면 알 수 있다.
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! MovieCell // cell 객체를 생성,
         
-        cell.thumbnail.image = row.thumbnailImage //이미지 객체를 넣는다.
+        // 비동기 방식으로 섬네일 이미지를 읽어온다.
+        DispatchQueue.main.async(execute: {
+            cell.thumbnail.image = self.getThumbnailImage(indexPath.row)
+        })
         
         cell.title?.text = row.title
         
@@ -107,8 +126,4 @@ class ListViewController: UITableViewController{
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { //테이블 셀을 클릭했을때 실행되는 함수
         NSLog("선택된 행은\(indexPath.row) 번째 행입니다.")
     }
-    
-    
-    
-    
 }
