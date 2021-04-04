@@ -15,6 +15,8 @@ class ListViewController: UITableViewController{
     
     var page = 1
     
+    let tmdb_img_url = "https://image.tmdb.org/t/p/w500"
+    
     @IBAction func more(_ sender: Any) {
         self.page += 1
         // 영화 차트 API 호출
@@ -32,9 +34,9 @@ class ListViewController: UITableViewController{
         
         let apidata = try! Data(contentsOf: apiURL)
         
-        let log = NSString(data:apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다."
-        
-        NSLog("\(log)")
+//        let log = NSString(data:apidata, encoding: String.Encoding.utf8.rawValue) ?? "데이터가 없습니다."
+//
+//        NSLog("\(log)")
         
         do {
             let apiDictionary = try JSONSerialization.jsonObject(with: apidata, options: []) as! NSDictionary
@@ -59,6 +61,14 @@ class ListViewController: UITableViewController{
                 mvo.detail = r["original_title"] as? String
                 mvo.rating = r["vote_average"] as? Double
                 mvo.opendate = r["release_date"] as? String
+            
+                let thumb_img_url = tmdb_img_url + mvo.thumbnail!
+                NSLog("\(thumb_img_url)")
+                // 썸네일 경로로 인자값으로 하는 URL 객체를 생성
+                let img_url : URL! = URL(string: thumb_img_url)
+                // 이미지를 긁어와 변수에 저장하고 이를 mvo 인스턴스에 넣는다.
+                let imageData = try! Data(contentsOf: img_url)
+                mvo.thumbnailImage = UIImage(data: imageData)
                 // 배열에 추가
                 self.list.append(mvo)
             }
@@ -81,13 +91,7 @@ class ListViewController: UITableViewController{
         let row = self.list[indexPath.row] // 행의 번호를 알고 싶을떄 list[indexPath.row]를 사용하면 알 수 있다.
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! MovieCell // cell 객체를 생성,
         
-        // 썸네일 경로로 인자값으로 하는 URL 객체를 생성
-        let imageurl = "https://image.tmdb.org/t/p/w500/" + row.thumbnail!
-        let url: URL! = URL(string: imageurl)
-        // 이미지를 읽어와 Data 객체에 저장
-        let imageData = try! Data(contentsOf: url)
-        
-        cell.thumbnail.image = UIImage(data:imageData)
+        cell.thumbnail.image = row.thumbnailImage //이미지 객체를 넣는다.
         
         cell.title?.text = row.title
         
