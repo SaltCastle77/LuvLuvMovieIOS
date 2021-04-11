@@ -12,6 +12,8 @@
 		54763CF12622F9ED00019C82 /* Trailer.png in Resources */ = {isa = PBXBuildFile; fileRef = 54763CEF2622F9ED00019C82 /* Trailer.png */; };
 		54763D042623018C00019C82 /* TheaterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54763D032623018C00019C82 /* TheaterCell.swift */; };
 		54763D072623021900019C82 /* TheaterListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54763D062623021900019C82 /* TheaterListController.swift */; };
+		54763D0B2623279000019C82 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54763D0A2623279000019C82 /* MapKit.framework */; };
+		54763D0E2623329E00019C82 /* TheaterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54763D0D2623329E00019C82 /* TheaterViewController.swift */; };
 		54FB864426134EB80001BF2D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB864326134EB80001BF2D /* AppDelegate.swift */; };
 		54FB864626134EB80001BF2D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB864526134EB80001BF2D /* SceneDelegate.swift */; };
 		54FB864826134EB80001BF2D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB864726134EB80001BF2D /* ViewController.swift */; };
@@ -29,6 +31,8 @@
 		54763CEF2622F9ED00019C82 /* Trailer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Trailer.png; sourceTree = "<group>"; };
 		54763D032623018C00019C82 /* TheaterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheaterCell.swift; sourceTree = "<group>"; };
 		54763D062623021900019C82 /* TheaterListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheaterListController.swift; sourceTree = "<group>"; };
+		54763D0A2623279000019C82 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		54763D0D2623329E00019C82 /* TheaterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheaterViewController.swift; sourceTree = "<group>"; };
 		54FB864026134EB80001BF2D /* LuvLuvMovieIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LuvLuvMovieIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		54FB864326134EB80001BF2D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		54FB864526134EB80001BF2D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -47,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54763D0B2623279000019C82 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,11 +67,20 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		54763D092623279000019C82 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				54763D0A2623279000019C82 /* MapKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		54FB863726134EB80001BF2D = {
 			isa = PBXGroup;
 			children = (
 				54FB864226134EB80001BF2D /* LuvLuvMovieIOS */,
 				54FB864126134EB80001BF2D /* Products */,
+				54763D092623279000019C82 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -86,6 +100,7 @@
 				54FB864526134EB80001BF2D /* SceneDelegate.swift */,
 				54FB864726134EB80001BF2D /* ViewController.swift */,
 				54FB864926134EB80001BF2D /* Main.storyboard */,
+				54763D0D2623329E00019C82 /* TheaterViewController.swift */,
 				54763D062623021900019C82 /* TheaterListController.swift */,
 				54FB865B261368450001BF2D /* ListViewController.swift */,
 				54FB865E2613730B0001BF2D /* MovieVO.swift */,
@@ -179,6 +194,7 @@
 				54763D072623021900019C82 /* TheaterListController.swift in Sources */,
 				54FB865F2613730B0001BF2D /* MovieVO.swift in Sources */,
 				54FB865C261368450001BF2D /* ListViewController.swift in Sources */,
+				54763D0E2623329E00019C82 /* TheaterViewController.swift in Sources */,
 				54FB864626134EB80001BF2D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
