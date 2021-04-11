@@ -5,10 +5,12 @@
 ## 1일차
 
 ### 테이블 뷰를 이용한 데이터 목록 구현
+
 <details>
 <summary>자세히</summary>
 	<div markdown="1">
 > 영화의 썸네일 그리고 제목, 일자를 포함한 목록을 보여주기 위해서 TableView를 이용하여 목록을 구현한다.
+
 
 ![image-20210331230951882](README.assets/image-20210331230951882.png)
 
@@ -176,13 +178,18 @@ lazy var list: [MovieVO] = { // list 변수가 불러질떄 생성된다.
 
 </div>
 </details>
+
+
+
 ## 2일차
 
 ### TMDB 데이터 연동
+
 <details>
 <summary>자세히</summary>
 	<div markdown="1">
 > `viewDidLoad)()` 메소드 내부에서 REST 메소드를 호출해 줘야한다. 
+
 
 - GET 방식으로 REST 메소드를 호출하여 데이터를 읽어오는 방법은 다음과 같다. 
 
@@ -280,6 +287,7 @@ do {
         }
     }
 ```
+
 </div>
 </details>
 
@@ -287,7 +295,11 @@ do {
 
 ### 테이블 뷰의 동작원리
 
+<details>
+<summary>자세히</summary>
+	<div markdown="1">
 > 드래그 할때마다 대기상태에 있던 데이터를 화며에 표시한다.
+
 
  #### 1. 재사용 메커니즘
 
@@ -369,5 +381,124 @@ let thumb_img_url = tmdb_img_url + mvo.thumbnail!
         DispatchQueue.main.async(execute: {
             cell.thumbnail.image = self.getThumbnailImage(indexPath.row)
         })
+```
+
+</div>
+</details>
+
+
+
+##  4일차
+
+### 탭 바 컨트롤러
+
+> 탭 바 컨트롤러는 수평적 관계의 독립된 각 화면에 바로 접근할 수 있도록 탭바를 제공하는 컨트롤러이다.  바 컨트롤러로 수평이동을 진행하고 수직 이동을 처리하는 방식으로 화면을 구성하는 경우가 많다. 
+
+- Tab Bar controller를 가져오면 루트 뷰 컨트롤러와 추가된 뷰 컨트롤러가 직접 연결되는데 이렇게 추가해서 뷰 컨트롤러를 구현해도 되지만 이미 구성되어 있다면 불편하다.
+- 일반적으로 일반 뷰 컨트롤러 앞에 내비게이션 컨트롤러를 삽입하고, 그 앞에 다시 탭 바 컨트롤러를 삽입하는 방식으로 진행하는게 **효율적!!**
+
+- 탭바에 아이템, 즉 카테고리를 추과하는 과정은 다음과 같다.
+
+  1) 탭 바에 연결결할 뷰 컨트롤러를 스토리보드에 추가 
+
+  2) 탭 바 컨트로러에서 `<ctrl> + 드래그` 하여 추가된 뷰 컨트롤러에 연결한다.
+
+  3) 표시된 팝업 창에서 `[Relationship Segue]` 항목 아래 `view controllers` 를 선택한다. 
+
+- 탭 바 컨트롤러와 뷰 컨트롤러 사이의 연결은 `관계형 세그웨이` 라고하며 **자신의 화면은 없지만 다른 뷰 컨트롤러를 제어할 수 있는 특징이 있다.**
+
+- 탭 바  컨트롤러를 구성할 때 내비게이션 컨트롤러 앞쪽에 추가해야한다. 탭바는 전체적인 스토리보드를 통제하기 떄문이다.
+
+![image-20210411181325710](README.assets/image-20210411181325710.png)
+
+- 탭 바의 아이콘을 변경하려면 개별 뷰 컨트롤러 탭을 클릭해서 선택해야하고, 탭 바의 타이틀을 수정할때도 탭바가 아니라 탭 바에 연결된 내비게이션 컨트롤러의 탭바를 클릭해서 수정해야한다. **탭바 컨트롤러는 건들면안돼!**
+
+	#### 1. 영화관 목록구현
+
+##### 1) API를 받아오는 과정 
+
+- TheaterListController.swift
+
+```swift
+//
+//  TheaterListController.swift
+//  LuvLuvMovieIOS
+//
+//  Created by 염성훈 on 2021/04/11.
+//
+
+import UIKit
+class TheaterListController: UITableViewController {
+    // API를 통해 불러온 데이터를 저장할 배열 변수를 찾는다.
+    var list = [NSDictionary]()
+    // 읽어올 데이터의 시작 위치
+    var startPoint = 0
+    
+    override func viewDidLoad() {
+        // API호출은 여기서 이뤄줘야한다. 데이터를 가져와야한다.
+        callTheaterAPI()
+    }
+    // 극장 API를 가져올 API 호출 함수
+    func callTheaterAPI(){
+        // URL을 구성하기 위한 상수값을 선언한다.
+        let request = "http://swiftapi.rubypaper.co.kr:2029/theater/list"
+        let sList = 100
+        let type = "json" // 데이터 형식
+        
+        // URL객체로 정해준다 왜? 요청을 보낼꺼면 URL객체로 저장해줘야하기때문이다!
+        let urlObj = URL(string: "\(request)?s_page=\(self.startPoint)&s_list=\(sList)&type=\(type)")
+        
+        // 이제 이걸 호출에 넣어야겠지? 근대 살짝 다르다.
+        do {
+            // NSString 객체를 이용해서 API를 호출한다. 원래 Data(contentesOf)롤 객체를 통해서 가져왔지만
+            // 여기서는 NSString객체를 이용하한다. 왜냐? 영화관 데이터가 UTF-8이 아니라 EUC-KR이기 떄문에 NSString은
+            let stringdata = try NSString(contentsOf: urlObj!, encoding: 0x80_000_422)
+            // 문자열로 받은 데이터를 UTF-8로 인코딩 처리한 Data 객체로 변환한다. -> 담은 NSArray 객체로 변환해지?
+            let encdata = stringdata.data(using: String.Encoding.utf8.rawValue)
+                do {
+                    //Data 객체를 파싱해서 NSArray 객체로 변환다.
+                    let apiArray = try JSONSerialization.jsonObject(with: encdata!, options: []) as? NSArray
+                    
+                    // 읽어온 데이터를 순회하면서 self.list 배열에 추가한다. jsonObject 메서드의 리턴 값이 nil이거나 jaonData이기 떄문에 apiArray에 !를 붙여서 옵셔널 추출을 실행한다.
+                    for obj in apiArray! {
+                        self.list.append(obj as! NSDictionary)
+                    }
+                } catch {
+                    // 경고창 형식으로 오류 메세지를 표시해준다.
+                    let alert = UIAlertController(title: "실패", message: "데이터 분석이 실패하였습니다.", preferredStyle: .alert)
+                    
+                    alert.addAction(UIAlertAction(title:"확인", style: .cancel))
+                    self.present(alert, animated: false)
+                }
+            // 읽어와야할 다음 페이지의 데이터 시작 위치를 구해서 저장한다.
+            self.startPoint += sList
+            } catch {
+                // 경고창 형식으로 오류 메세지를 표시해준다.
+                let alert = UIAlertController(title: "실패", message: "데이터 분석이 실패하였습니다.", preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title:"확인", style: .cancel))
+                self.present(alert, animated: false)
+            }
+        }
+        // 위의 코드들은 영화관 데이터를 list에 담기위한 로직 이제 테이블 목록을 cell에 나타내줘야한다.그럼 뭘해야해? 관련 메소드를 호출하면되지
+    // 1) 셀행의 갯수를 출력한다.
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.list.count
+    }
+    // 2) 셀에 내용을 표기해줘야지.
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // sefl.list 배열에서 행에 맞는 데어틀 꺼낸다.
+        let obj = list[indexPath.row]
+           
+        // 재사용 큐로부터 tCell 식별자에 맞는 셀 객체를 전달 받는다. // TheaterCell로 다운캐스팅도한다.
+        let cell = tableView.dequeueReusableCell(withIdentifier: "tCell") as! TheaterCell
+        
+        cell.name?.text = obj["상영관명"] as? String
+        cell.tel?.text = obj["연락처"] as? String
+        cell.addr.text = obj["소재지도로명주소"] as? String
+        
+        return cell
+    }
+}
 ```
 
