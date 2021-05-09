@@ -2,9 +2,7 @@
 
 > 참고문헌 : 꼼꼼한 재은씨의 Swift 기본편, 실전편
 
-## 1일차
-
-### 테이블 뷰를 이용한 데이터 목록 구현
+## 1 .테이블 뷰를 이용한 데이터 목록 구현
 
 <details>
 <summary>자세히</summary>
@@ -181,9 +179,7 @@ lazy var list: [MovieVO] = { // list 변수가 불러질떄 생성된다.
 
 
 
-## 2일차
-
-### TMDB 데이터 연동
+## 2. TMDB 데이터 연동
 
 <details>
 <summary>자세히</summary>
@@ -291,9 +287,7 @@ do {
 </div>
 </details>
 
-## 3일차 
-
-### 테이블 뷰의 동작원리
+## 3. 테이블 뷰의 동작원리 
 
 <details>
 <summary>자세히</summary>
@@ -388,9 +382,7 @@ let thumb_img_url = tmdb_img_url + mvo.thumbnail!
 
 
 
-##  4일차
-
-### 탭 바 컨트롤러
+## 4. 탭 바 컨트롤러
 
 > 탭 바 컨트롤러는 수평적 관계의 독립된 각 화면에 바로 접근할 수 있도록 탭바를 제공하는 컨트롤러이다.  바 컨트롤러로 수평이동을 진행하고 수직 이동을 처리하는 방식으로 화면을 구성하는 경우가 많다. 
 
@@ -504,9 +496,321 @@ class TheaterListController: UITableViewController {
 
 
 
-## 5일차
 
-### 오토레이아웃
+## 5. 오토레이아웃
 
 #### SourceTree 사용하기
 
+#### 1) 오토 리사이징
+
+##### ![image-20210412125735601](README.assets/image-20210412125735601.png)
+
+- 오토 리사이징으로 간단한 객체는 손쉽게 레이아웃 처리가 가능하지만 두개이 상의 뷰로 이뤄진 복잡한 형태이거나 가로세로의 간격을 정확하게 맞춰야 하는 레이아웃이라면 오토 리사이징 만으로는 어렵다.
+
+
+
+#### 2) 오토레이아웃
+
+> 핵심은 1) 해당 뷰의 x,y의 위치와 2) 해당 뷰의 가로,세로 크기에 있다. 
+
+- 앵커를 4방향다 걸개되면 위치를 알게 되므로 크기도 자동으로 정해지게 된다
+- 앵커를 좌우를 걸었는데 너비를 주게 되면 컨스트레인이 충돌이 나게 되는데 충돌되는 부분을 선택해줄수 있게 할 수 있다.
+- 충돌에 대한 처리는 아래 그람과 같이 빨간색을 눌러서 삭제시키면 된다.
+- ![](README.assets/image-20210412160506261.png)
+
+
+
+- 폰트는 폰트자체에 크기가 있기 때문에 폰트의 끝이 뷰의 끝과 일치한다. 따라서 컨텐트를 감싸고 있는 뷰에 높이 값을 주지 않아도 된다.
+- 폰트 자체가 높이 값과 넓이 값을 갖고 있기 때문에 내용물에 따라서 높이 값을 정해 줄 수 있게 된다.
+- 뷰 자체에 제한을 두고 싶다면 height에 제한을 주면 된다.
+
+![image-20210412163903562](README.assets/image-20210412163903562.png)
+
+- `Less Than or Equal`을 주게 되면 아래와 같이 높이가 아래 범위까지 적용이되고 그 이상은 높이값이 제한되게 할 수 있다.
+
+![image-20210412164505826](README.assets/image-20210412164505826.png)
+
+-  아래와 같이 두개의 직사각형에 오토레이아웃을 적용하게 할려면 양 너비의 거리를 갖게 해주고`설정창에서 equal width`선택후   `constrain` 좌우를 걸어주면 너비 값을 맞출 수가 있고, 주황색 사각형에 상하좌의 `constrain`을 걸고 설정창에서 `equal height`를 선택하면 값이 같아지는걸 볼 수가 있다.
+
+![image-20210412212501001](README.assets/image-20210412212501001.png)
+
+- 두개를 선택해서 `equal height` 를 정해주는 것도 있지만 `alignment Constraints`를 이용해서 `Top edges`와 `Bottom Edges`를 주어 높이를 선정해서 같은 결과를 얻게 할 수도 있다. 
+
+![image-20210412222821141](README.assets/image-20210412222821141.png)
+
+- 아래와 같이 `Constrain`이 두개가 걸려있을 수 있는데 충돌되는 사항에서는 우선순위가 높은게 적용이된다. (가운대 두줄 부분) 만약 하나가 `equal constrain 20` 이고 다른 하나가 `less than equal constrain 100` 이라면 최소 20이 적용되고 100이하면 OK 되니까 둘다 오류가 발생안한다. 그러나 20이빠져버리면 100이하 값이 적용된는건 알겠는데 정확한 값이 적용이 되지 않으므로 오류가 발생하게 된다.
+
+![image-20210412223235214](README.assets/image-20210412223235214.png)
+
+- `intrinsic contentView` 라는 개념이 있는데 따로 파일을 파서 `override Intrinsict ContentView` 함수를 만들어주고 안에 `CGSize(width="",height="")`를 정해주고 `@IBDesignable` 어노테이션을 붙여준후 이 값을 특정 객체에 클래스에 연결하면 객체의 크기와 너비를 조절할 수가 있다.
+
+##### Content Compression
+
+> 외부에서 압력을 줄때 버티는 힘(최소 크기에 대한 제한) - 주어진 크기보다 커질 수 있다.
+
+##### Content hugging
+
+> 컨텐츠가 늘어나지 않으려고 하는 개념이다.(최대 크기에 대한 제한) - 주어진 크기보다 작아질 수있다.
+
+
+
+![image-20210413214404157](README.assets/image-20210413214404157.png)
+
+- 참고자료 : https://ontheswift.tistory.com/21
+
+![image-20210413214622950](README.assets/image-20210413214622950.png)
+
+- content hugging이 크면 더 작아질 수 있다는 의미로 받아들이면 된다. 즉 파란색의 hugging이 더 높으므로 파란색의 width가 줄어든 것이다.
+
+#### 3) 스택뷰(Stack View Properties)
+
+![image-20210413015719251](README.assets/image-20210413015719251.png)
+
+#####  UIStackVIew.Distribution
+
+> 스택뷰 안에 들어가는 요소들을 어떻게 분배할 것인가에 대한 정의이다.
+
+- fill : 스택뷰의 전체 사이즈에다가 모든 요소를 채워 최대한 늘리게된다.어떤 친구가 늘어나야하는지? hugging 요소가 적은 요소가 먼저 채워진다.
+- fillEqually :  스택뷰 안의 요소들이 같은 사이즈로 배정된다.
+- fillProportionally : 자신의 콘텐츠 사이즈의 비율대로 채워지고 축소, 확대된다.
+- equalSpacing : fill에서 스패이싱을 동일하게 가져간다는 의미
+- equalCentering : 각자의 뷰의 중앙을 가상으로 연결한 선단의 거리가 같다는 뜻
+
+![image-20210413020215836](README.assets/image-20210413020215836.png)
+
+##### UIStackView.Alignment
+
+- UIStackVIew.Alignment.fill : 세로를 꽉채우게된다. axis(축)의 반대방향 
+- UIStackVIew.Alignment.leading : 왼쪽 정렬로간다.
+- UIStackVIew.Alignment.top : 위로 정렬한다. 
+- UIStackVIew.Alignment.firstBaseLine : 안에 텍스트요소가 있으면 첫번째를 기준으로 아래로 정렬해준다. 
+- UIStackVIew.Alignment.lastBaseline :  맨 아랫줄을 맞춰주게 된다.
+
+
+
+#### 4) 코드로 Constraints 작성하기
+
+- AncheorViewController.swift
+
+```swift
+
+import UIKit
+
+class AnchorVIewController: UIViewController {
+    // 화면이 그려지기 전에 해야되기 때문에 `viewdidload` 에 작성해줘야한다.
+    override func viewDidLoad() {
+        super.viewDidLoad()
+            
+        let button = UIButton()
+        
+        button.setTitle("Button", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemGreen
+        view.addSubview(button)
+        
+        //오토사이징을 해제시켜준다. constraint를 사용할 것이기 떄문이다.
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        // safeArea를 객체로 지정한다.
+        let safeArea = view.safeAreaLayoutGuide
+        // 버튼의 왼쪽에 엥커를 다는데, 어디에? equalTO: safeArea의 왼쪽(leading)에! 그리고 .constraint가 NSLayoutConstraint를 반환하는데 이걸 객체로 다시만들어주기
+        // 귀찮아서 isActive = true 를 통해서 바로 앵커를 만들자마자 활성화시켜준다. constraints는 비활성화 활성화가 있음. 따라서 꼭 활성화르 해ㅜ저야한다.
+        button.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16).isActive = true
+        
+        button.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16).isActive = true
+        
+        let safeBottomAnchor = button.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
+        
+        safeBottomAnchor.isActive = true
+        // 우선순위를 한단계 낮게 줘서 먼저 safeArea보다 superview(=view)에서부터 먼저 떨어지게 설정한다.
+        safeBottomAnchor.priority = .init(999)
+        // -20보다 최대 커야하면 0도 포함되기 떄문에 lessthanorEqualTo로 지정해서 최소 -20이어야한다고 지정해야줘야한다.
+        let viewBottomAnchor = button.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -20)
+         
+        viewBottomAnchor.isActive = true
+        
+    }
+}
+```
+
+- 제약조건을 코드로 만들어서 적용시킬 수도 있다. 왜써? 가끔 스토리보드 엥커를 사용할때 안될때가 있는데 그래서 코드를 사용해서 상세하게 잡아줄 수가 있다.
+- 단점으로는 `NSLayoutConstraint` 내부의 attribute의 값을 가로와 세로 값을 다르게 적용시켜줘도 에러를 검출해주지 않는다. 스토리보드에서는 디버깅이 됬지만 여기서는 안됨!
+
+```swift
+import UIKit
+
+class ConstraintViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let button = UIButton()
+        
+        button.setTitle("Button", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemGreen
+        view.addSubview(button)
+        
+        //오토사이징을 해제시켜준다. constraint를 사용할 것이기 떄문이다.
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let safeArea = view.safeAreaLayoutGuide
+        // leading constraint를 만든다. 그리고 각 제약조건들을 다 만들어준다.
+        let leading = NSLayoutConstraint(item: button,
+                                         attribute: .leading,
+                                         relatedBy: .equal,
+                                         toItem: safeArea,
+                                         attribute: .leading,
+                                         multiplier: 1,
+                                         constant: 16)
+        let trailing = NSLayoutConstraint(item: button,
+                                          attribute: .trailing,
+                                          relatedBy: .equal,
+                                          toItem: safeArea,
+                                          attribute: .trailing,
+                                          multiplier: 1,
+                                          constant: -16)
+        
+        let bottomSafeArea = NSLayoutConstraint(item: button,
+                                                attribute: .bottom,
+                                                relatedBy: .equal,
+                                                toItem: safeArea,
+                                                attribute: .bottom,
+                                                multiplier: 1,
+                                                constant: -16)
+        bottomSafeArea.priority = .defaultHigh
+        
+        
+        let bottomView = NSLayoutConstraint(item: button,
+                                            attribute: .bottom,
+                                            relatedBy: .lessThanOrEqual,
+                                            toItem: view,
+                                            attribute: .bottom,
+                                            multiplier: 1,
+                                            constant: -20)
+        
+        
+        NSLayoutConstraint.activate([leading,trailing,bottomSafeArea,bottomView])
+```
+
+- safe Area : 콘텐츠를 안전하게 보여줄 수 있는 안전영역을 표시하는 부분이다. 
+
+- 네브바를 추가할때 safeArea의 범위를 바꿔 줄 수 있다. 참고 : https://developer.apple.com/documentation/uikit/uiview/positioning_content_within_layout_margins
+
+
+
+#### 4) 스크롤뷰(Scroll View)
+
+- 동적 타입으로 레이블을 설정하면 폰트의 사이즈가 설정에 따라서 동적으로 변하게 된다.
+
+- 잊지말 것은 양쪽에 앵커를 걸면 길이와 높이를 정해주지 않으면 앵커를 만족하는 길이만큼 늘어나 버린다. width나  height가 엥커 거리만큼 결정될 수 있다는 말이다.
+
+
+
+#### 5) 동적 스크롤뷰 (Dynamic Scroll View)
+
+```swift
+class DynamicViewController : UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+    }
+    
+    // 스택뷰 프로퍼티를 지정한다.타입까지 지정한다.
+    @IBOutlet var stackView: UIStackView!
+    
+    @IBAction func addView() {
+        let label = UILabel()
+
+        label.font = UIFont.preferredFont(forTextStyle: .largeTitle)
+        label.isHidden = true
+        label.text = """
+            asdfsdfdsfsdf
+            sdfsdfsfsdfs
+            dfsfsfsdfd
+            sdfdsfsdfsd
+            sdfdsfsdfsd
+            sdfdsfsfsf
+            """
+        // 라벨의 라인수는 0으로 지정
+        label.numberOfLines = 0
+        //Accessibility Inspector를 사용할때 바로 적용시키기 위해서 아래와 같은 설정을 지정해줘야한다.
+        label.adjustsFontForContentSizeCategory = true
+        //스택뷰에 라벨을 추가하는 부분이다.
+        stackView.addArrangedSubview(label)
+        
+        UIView.animate(withDuration: 0.3) {
+            label.isHidden = false
+        }
+    }
+        
+    @IBAction func removeView() {
+        //스택 뷰 내부의 Views에 접근하기 위해서 앞서 언급한 arragnedSubViews의 속성을 사용하면 되는데 아래는 막 요소를 돌려 받는 것이다.
+      
+        guard let last = stackView.arrangedSubviews.last else {return}
+        
+        UIView.animate(withDuration: 0.3) {
+            last.isHidden = true
+        } completion: { (_) in
+            self.stackView.removeArrangedSubview(last)
+        }
+    }
+}
+```
+
+- StackView 내부의 Views에 접근하기 위해서는 앞서 언급한 arrangedSubViews 속성을 사용하면 됩니다. 다음 예제는 내부 View 중 첫 번째 view의 height와 width를 같게 만드는 constraint 예제입니다. 아래와 같이도 적용시킬 수 있다.
+
+```swift
+stackView.arrangedSubviews[0].heightAnchor.constraint(equalTo: stackView.arrangedSubviews[0].widthAnchor).isActive = true
+```
+
+
+
+#### 6)  동적타입
+
+> 사용자다 화면을 확대하거나 축소할때 또는 레이아웃 전체가 확대될때 화면 내부의 레이블이나 객체들의 사이즈가 변경되도록 만드는 것이다. 
+
+- label의 경우에는 동적타입으로 지정해주면 알아서 동적 타입이 적용되는데 버튼은 그렇지 않다. 따라서 따로 코드로 짜줘야한다. 
+- **중요! Font를 body나 스타일을 지정해줘야 동적임, 지금 저렇게 사이즈만 줘서는 저거로 고정이된다.**
+
+![image-20210413220358129](README.assets/image-20210413220358129.png)
+
+```swift
+override func viewDidLoad() {
+        super.viewDidLoad()
+        //시작할떄 notificationCenter를 가져와서 관찰자로 추가해준다.
+        NotificationCenter.default.addObserver(self, selector: #selector(adjustButtonDynamicType), name: UIContentSizeCategory.didChangeNotification, object: nil)
+    }
+    
+    @objc func adjustButtonDynamicType() {
+        // 버튼을 받아와서 모든 버튼을 다이나믹 타입으로 만들어준다.
+        buttons.forEach{(button) in
+            //버튼의 글자(titleLable)를 동적으로 만들라는 의미이다.
+            button.titleLabel?.adjustsFontForContentSizeCategory = true
+        } 
+    }
+    
+    
+    @IBOutlet var stackView: UIStackView!
+    // 버튼도 동적으로 만들기 위한 변수
+    @IBOutlet var buttons:[UIButton]!
+```
+
+- [NotificationCenter](./docs/NotificationCenter.md)
+
+## 6. 결과
+
+### 1) 메인화면
+
+![image-20210509171534143](README.assets/image-20210509171534143.png){: width="100" height="100"}
+
+
+
+### 2) 영화관 정보화면 
+
+![image-20210509171653461](README.assets/image-20210509171653461.png)
+
+### 3) 영화관 지도정보화면 
+
+![image-20210509171727499](README.assets/image-20210509171727499.png)
