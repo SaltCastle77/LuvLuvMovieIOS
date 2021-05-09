@@ -815,7 +815,7 @@ override func viewDidLoad() {
 
 ### 1) 메인화면
 
-![image-20210509171534143](README.assets/image-20210509171534143.png){: width="100" height="100"}
+![image-20210509171534143](README.assets/image-20210509171534143.png)
 
 
 
