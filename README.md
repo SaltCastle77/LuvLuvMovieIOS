@@ -384,6 +384,9 @@ let thumb_img_url = tmdb_img_url + mvo.thumbnail!
 
 ## 4. 탭 바 컨트롤러
 
+<details>
+<summary>자세히</summary>
+	<div markdown="1">
 > 탭 바 컨트롤러는 수평적 관계의 독립된 각 화면에 바로 접근할 수 있도록 탭바를 제공하는 컨트롤러이다.  바 컨트롤러로 수평이동을 진행하고 수직 이동을 처리하는 방식으로 화면을 구성하는 경우가 많다. 
 
 - Tab Bar controller를 가져오면 루트 뷰 컨트롤러와 추가된 뷰 컨트롤러가 직접 연결되는데 이렇게 추가해서 뷰 컨트롤러를 구현해도 되지만 이미 구성되어 있다면 불편하다.
@@ -494,10 +497,16 @@ class TheaterListController: UITableViewController {
 }
 ```
 
-
+</div>
+</details>
 
 
 ## 5. 오토레이아웃
+
+
+<details>
+<summary>자세히</summary>
+	<div markdown="1">
 
 #### SourceTree 사용하기
 
@@ -799,11 +808,14 @@ override func viewDidLoad() {
 
 - [NotificationCenter](./docs/NotificationCenter.md)
 
+</div>
+</details>
+
 ## 6. 결과
 
 ### 1) 메인화면
 
-![image-20210509171534143](README.assets/image-20210509171534143.png){: width="100" height="100"}
+![image-20210509171534143](README.assets/image-20210509171534143.png)
 
 
 
